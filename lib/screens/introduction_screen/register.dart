@@ -1,0 +1,206 @@
+import 'package:celam/screens/introduction_screen/intro.dart';
+import 'package:celam/services/auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class Regis extends StatefulWidget {
+  const Regis({super.key});
+
+  @override
+  State<Regis> createState() => _RegisState();
+}
+
+class _RegisState extends State<Regis> {
+  bool _loading = false;
+
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _emailController = TextEditingController();
+
+  final TextEditingController _pinController = TextEditingController();
+
+  final TextEditingController _confirmPinController = TextEditingController();
+
+  handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final email = _emailController.value.text;
+    final pin = _pinController.value.text;
+    final confirmPin = _confirmPinController.value.text;
+
+    if (email.isEmpty || pin.isEmpty || confirmPin.isEmpty) {
+      _alertDialog('Error', 'Isi data dengan benar!');
+    } else if (pin != confirmPin) {
+      _alertDialog('Error', 'Password tidak sama');
+    } else {
+      setState(() => _loading = true);
+      try {
+        await Auth().regis(email, pin);
+        _alertDialog('Success', 'Akun berhasil dibuat!');
+      } catch (e) {
+        _alertDialog('Error', '$e');
+      } finally {
+        setState(() => _loading = false);
+        handleClear();
+      }
+    }
+  }
+
+  void _alertDialog(String title, String content) {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(
+              content,
+              style: TextStyle(color: Colors.black),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'))
+            ],
+          );
+        }));
+  }
+
+  handleClear() {
+    _emailController.clear();
+    _pinController.clear();
+    _confirmPinController.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/background/bg3.png'),
+                fit: BoxFit.cover),
+          ),
+          child: Center(
+            child: Form(
+              key: _formKey,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Daftar',
+                        style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+                      Container(
+                        width: 240,
+                        height: 400,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(25),
+                                bottomRight: Radius.circular(25)),
+                            color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Email',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                controller: _emailController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(25)
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: 'Your name',
+                                  prefixIcon: Icon(Icons.person),
+                                  prefixIconColor: Color(0xFF255e36),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                'PIN',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                  controller: _pinController,
+                                  obscureText: true,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(6)
+                                  ],
+                                  decoration: InputDecoration(
+                                      hintText: '******',
+                                      prefixIcon: Icon(Icons.password),
+                                      prefixIconColor: Color(0xFF255e36))),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                'Verify PIN',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                  controller: _confirmPinController,
+                                  obscureText: true,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(6)
+                                  ],
+                                  decoration: InputDecoration(
+                                      hintText: '******',
+                                      prefixIcon: Icon(Icons.password),
+                                      prefixIconColor: Color(0xFF255e36))),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              ElevatedButton(
+                                  onPressed: () => handleSubmit(),
+                                  child: _loading
+                                      ? SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Icon(Icons.send)),
+                              // SizedBox(height: 20,),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              IntroductionScreen()));
+                                },
+                                child: Text(
+                                  'Punya akun?',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      )
+                    ]),
+              ),
+            ),
+          ),
+        ));
+  }
+}
