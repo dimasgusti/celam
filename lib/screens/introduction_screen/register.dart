@@ -1,5 +1,7 @@
 import 'package:celam/screens/introduction_screen/intro.dart';
-import 'package:celam/services/auth.dart';
+import 'package:celam/services/accountAuth.dart';
+import 'package:celam/services/balanceAuth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,6 +13,8 @@ class Regis extends StatefulWidget {
 }
 
 class _RegisState extends State<Regis> {
+  User? _user;
+
   bool _loading = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -29,12 +33,18 @@ class _RegisState extends State<Regis> {
 
     if (email.isEmpty || pin.isEmpty || confirmPin.isEmpty) {
       _alertDialog('Error', 'Isi data dengan benar!');
+    } else if (pin.length < 6) {
+      _alertDialog('Error', 'PIN harus 6 angka');
     } else if (pin != confirmPin) {
       _alertDialog('Error', 'Password tidak sama');
     } else {
       setState(() => _loading = true);
       try {
         await Auth().regis(email, pin);
+        String uid = _user != null ? _user!.uid : '1';
+        double initialBalance = 0.0;
+        FirestoreService firestoreService = FirestoreService();
+        firestoreService.registerBalance(uid, initialBalance);
         _alertDialog('Success', 'Akun berhasil dibuat!');
       } catch (e) {
         _alertDialog('Error', '$e');
@@ -70,6 +80,16 @@ class _RegisState extends State<Regis> {
     _emailController.clear();
     _pinController.clear();
     _confirmPinController.clear();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      setState(() {
+        _user = user;
+      });
+    });
   }
 
   @override

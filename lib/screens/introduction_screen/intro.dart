@@ -1,6 +1,7 @@
 import 'package:celam/screens/homescreen/home.dart';
 import 'package:celam/screens/introduction_screen/register.dart';
-import 'package:celam/services/auth.dart';
+import 'package:celam/services/accountAuth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,6 +32,12 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       setState(() => _loading = true);
       try {
         await Auth().login(email, pin);
+        FirebaseAuth.instance.authStateChanges().listen((User? user) {
+          if (user != null) {
+            print(user.uid);
+            print(user.email);
+          }
+        });
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       } catch (e) {
@@ -174,82 +181,79 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             bottomRight: Radius.circular(25)),
                         color: Colors.white),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                        children: [
-                          Text(
-                            'Email',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          TextFormField(
-                            controller: _emailController,
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(20)
-                            ],
-                            decoration: InputDecoration(
-                              hintText: 'Your name',
-                              prefixIcon: Icon(Icons.person),
-                              prefixIconColor: Color(0xFF255e36),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Text(
-                            'PIN',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          TextFormField(
-                              controller: _pinController,
-                              obscureText: true,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(6)
-                              ],
-                              decoration: InputDecoration(
-                                  hintText: '******',
-                                  prefixIcon: Icon(Icons.password),
-                                  prefixIconColor: Color(0xFF255e36))),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          ElevatedButton(
-                            onPressed: () => handleSubmit(),
-                            child: _loading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.login
+                        padding: const EdgeInsets.all(16.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Text(
+                                'Email',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                controller: _emailController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(20)
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: 'Your name',
+                                  prefixIcon: Icon(Icons.person),
+                                  prefixIconColor: Color(0xFF255e36),
                                 ),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                'PIN',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                  controller: _pinController,
+                                  obscureText: true,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(6)
+                                  ],
+                                  decoration: InputDecoration(
+                                      hintText: '******',
+                                      prefixIcon: Icon(Icons.password),
+                                      prefixIconColor: Color(0xFF255e36))),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              ElevatedButton(
+                                onPressed: () => handleSubmit(),
+                                child: _loading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Icon(Icons.login),
+                              ),
+                              // SizedBox(height: 20,),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Regis()));
+                                },
+                                child: Text(
+                                  'Akun baru?',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 12),
+                                ),
+                              )
+                            ],
                           ),
-                          // SizedBox(height: 20,),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Regis()));
-                            },
-                            child: Text(
-                              'Akun baru?',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 12),
-                            ),
-                          )
-                        ],
-                      ),
-                      )
-                    ),
+                        )),
                   )
                 ],
               ),

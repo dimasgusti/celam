@@ -1,6 +1,6 @@
 import 'package:celam/screens/homescreen/home.dart';
 import 'package:celam/screens/introduction_screen/intro.dart';
-import 'package:celam/services/auth.dart';
+import 'package:celam/services/accountAuth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';

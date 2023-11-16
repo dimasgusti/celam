@@ -1,5 +1,5 @@
 import 'package:celam/screens/introduction_screen/intro.dart';
-import 'package:celam/services/auth.dart';
+import 'package:celam/services/accountAuth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

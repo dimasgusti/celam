@@ -37,6 +37,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.22.0
   firebase_auth: ^4.14.0
+  cloud_firestore: ^4.13.1
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +70,9 @@ flutter:
     - assets/images/celam_logo.png
     - assets/background/bg1.png
     - assets/background/bg2.png
+    - assets/background/bg2-icon.png
     - assets/background/bg3.png
+    - assets/images/qr.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
