@@ -140,7 +140,7 @@ class _RegisState extends State<Regis> {
                                   LengthLimitingTextInputFormatter(25)
                                 ],
                                 decoration: InputDecoration(
-                                  hintText: 'Your name',
+                                  hintText: 'name@mail.com',
                                   prefixIcon: Icon(Icons.person),
                                   prefixIconColor: Color(0xFF255e36),
                                 ),

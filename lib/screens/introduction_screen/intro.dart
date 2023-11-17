@@ -21,6 +21,13 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _pinController.dispose();
+    super.dispose();
+  }
+
   handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     final email = _emailController.value.text;
@@ -33,10 +40,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       try {
         await Auth().login(email, pin);
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
-          if (user != null) {
-            print(user.uid);
-            print(user.email);
-          }
+          if (user != null) {}
         });
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
@@ -72,8 +76,10 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
   }
 
   handleClear() {
-    _emailController.clear();
-    _pinController.clear();
+    if(mounted){
+      _pinController.clear();
+      _emailController.clear();
+    }
   }
 
   @override
@@ -197,7 +203,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                   LengthLimitingTextInputFormatter(20)
                                 ],
                                 decoration: InputDecoration(
-                                  hintText: 'Your name',
+                                  hintText: 'name@mail.com',
                                   prefixIcon: Icon(Icons.person),
                                   prefixIconColor: Color(0xFF255e36),
                                 ),
