@@ -69,9 +69,52 @@ class _TopupState extends State<Topup> {
     }
   }
 
+  Future<void> _pinInput(BuildContext context) async {
+    String pin = '';
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              'Masukkan PIN',
+            ),
+            content: Container(
+              width: 200,
+              height: 100,
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: (value) {
+                      pin = value;
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'PIN',
+                    ),
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    obscureText: true,
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Batal'),
+              ),
+              TextButton(onPressed: () {}, child: Text('Kirim'))
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Center(
@@ -82,21 +125,28 @@ class _TopupState extends State<Topup> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               ElevatedButton(
-                onPressed: (_user != null) ? () {
-                  _topUp(50000);
-                } : null,
+                onPressed: (_user != null)
+                    ? () {
+                        _pinInput(context);
+                        _topUp(50000);
+                      }
+                    : null,
                 child: Text('IDR 50.000'),
               ),
               ElevatedButton(
-                onPressed: (_user != null) ? () {
-                  _topUp(100000);
-                } : null,
+                onPressed: (_user != null)
+                    ? () {
+                        _topUp(100000);
+                      }
+                    : null,
                 child: Text('IDR 100.000'),
               ),
               ElevatedButton(
-                onPressed: (_user != null) ? () {
-                  _topUp(150000);
-                } : null,
+                onPressed: (_user != null)
+                    ? () {
+                        _topUp(150000);
+                      }
+                    : null,
                 child: Text('IDR 150.000'),
               ),
             ],
