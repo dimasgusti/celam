@@ -1,7 +1,10 @@
 import 'package:celam/services/balanceAuth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class Topup extends StatefulWidget {
   const Topup({Key? key}) : super(key: key);
@@ -69,31 +72,26 @@ class _TopupState extends State<Topup> {
     }
   }
 
-  Future<void> _pinInput(BuildContext context) async {
-    String pin = '';
+  Future<void> _confirm(BuildContext context, double amount) async {
+
+    String formatRupiah = NumberFormat.currency(
+        locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+    .format(amount);
 
     return showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text(
-              'Masukkan PIN',
+              'Lanjutkan?',
             ),
             content: Container(
               width: 200,
-              height: 100,
+              height: 20,
               child: Column(
                 children: [
-                  TextField(
-                    onChanged: (value) {
-                      pin = value;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'PIN',
-                    ),
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    obscureText: true,
+                  Text(
+                    'Topup sebesar: $formatRupiah'
                   )
                 ],
               ),
@@ -103,9 +101,15 @@ class _TopupState extends State<Topup> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Batal'),
+                child: Text('Tidak'),
               ),
-              TextButton(onPressed: () {}, child: Text('Kirim'))
+              TextButton(
+                  onPressed: () {
+                    _topUp(amount);
+                    Navigator.pop(context);
+                    _alertDialog('Success', 'Topup berhasil');
+                  },
+                  child: Text('Ya'))
             ],
           );
         });
@@ -118,36 +122,92 @@ class _TopupState extends State<Topup> {
       body: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Center(
-          child: Column(
+          child: ListView(
             children: [
-              Text(
-                'Top Up',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Saldo aktif'),
+                    FutureBuilder<double>(
+                      future: _user != null
+                          ? FirestoreService().getUserBalance(_user!.uid)
+                          : null,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Error mendapatkan saldo');
+                        } else {
+                          double userBalance = snapshot.data ?? 0.0;
+
+                          String formatRupiah = NumberFormat.currency(
+                                  locale: 'id_ID',
+                                  symbol: 'Rp ',
+                                  decimalDigits: 0)
+                              .format(userBalance);
+
+                          return Text(
+                            formatRupiah,
+                          );
+                        }
+                      },
+                    )
+                  ],
+                ),
               ),
-              ElevatedButton(
-                onPressed: (_user != null)
-                    ? () {
-                        _pinInput(context);
-                        _topUp(50000);
-                      }
-                    : null,
-                child: Text('IDR 50.000'),
+              Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 20,
               ),
-              ElevatedButton(
-                onPressed: (_user != null)
-                    ? () {
-                        _topUp(100000);
-                      }
-                    : null,
-                child: Text('IDR 100.000'),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    _confirm(context, 50000);
+                  },
+                  child: ListTile(
+                    title: Text('Rp 50.000'),
+                    // subtitle: Text('Subtitle'),
+                  ),
+                ),
               ),
-              ElevatedButton(
-                onPressed: (_user != null)
-                    ? () {
-                        _topUp(150000);
-                      }
-                    : null,
-                child: Text('IDR 150.000'),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    _confirm(context, 100000);
+                  },
+                  child: ListTile(
+                    title: Text('Rp 100.000'),
+                    // subtitle: Text('Subtitle'),
+                  ),
+                ),
+              ),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    _confirm(context, 250000);
+                  },
+                  child: ListTile(
+                    title: Text('Rp 250.000'),
+                    // subtitle: Text('Subtitle'),
+                  ),
+                ),
+              ),
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    _confirm(context, 500000);
+                  },
+                  child: ListTile(
+                    title: Text('Rp 500.000'),
+                    // subtitle: Text('Subtitle'),
+                  ),
+                ),
               ),
             ],
           ),

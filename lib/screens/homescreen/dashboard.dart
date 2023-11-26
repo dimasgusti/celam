@@ -142,7 +142,7 @@ class _DashboardState extends State<Dashboard> {
                       double userBalance = snapshot.data ?? 0.0;
 
                       String formatRupiah = NumberFormat.currency(
-                              locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
+                              locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
                           .format(userBalance);
 
                       return Text(
@@ -238,7 +238,7 @@ class _DashboardState extends State<Dashboard> {
                           double totalDeposit =
                               overallBalance(snapshot.data ?? [], 'deposit');
                           return Text(
-                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(totalDeposit)}',
+                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           );
                         }
@@ -270,7 +270,7 @@ class _DashboardState extends State<Dashboard> {
                           double totalDeposit =
                               overallBalance(snapshot.data ?? [], 'withdraw');
                           return Text(
-                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(totalDeposit)}',
+                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           );
                         }
@@ -313,10 +313,9 @@ class _DashboardState extends State<Dashboard> {
                         : ListView.builder(
                             itemCount: history.length,
                             itemBuilder: (context, index) {
-                              // Customize this part based on your data structure
                               String amount = NumberFormat.currency(
                                 locale: 'id_ID',
-                                symbol: 'Rp',
+                                symbol: 'Rp ',
                                 decimalDigits: 0,
                               ).format(history[index]['amount'] as double);
                               String type = history[index]['type'] as String;
@@ -328,7 +327,7 @@ class _DashboardState extends State<Dashboard> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
                                   color: Colors
-                                      .white70, // Set your desired background color
+                                      .white70,
                                   child: ListTile(
                                     title: Text(
                                       amount,
@@ -339,11 +338,21 @@ class _DashboardState extends State<Dashboard> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    subtitle: Text(
-                                      DateFormat('yyyy-MM-dd HH:mm:ss')
-                                          .format(timestamp),
-                                      style: TextStyle(color: Colors.black),
-                                    ),
+                                    subtitle: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          DateFormat('yyyy-MM-dd')
+                                              .format(timestamp),
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        Text(
+                                          DateFormat('HH:mm:ss')
+                                            .format(timestamp),
+                                          style: TextStyle(color: Colors.black),
+                                        )
+                                      ],
+                                    )
                                   ),
                                 ),
                               );

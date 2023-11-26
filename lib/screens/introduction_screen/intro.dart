@@ -40,12 +40,37 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
       try {
         await Auth().login(email, pin);
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
-          if (user != null) {}
+          if (user != null) {
+            final snackBar = SnackBar(
+              content: Text('Selamat datang!'),
+              action: SnackBarAction(label: 'Close', textColor: Colors.grey, onPressed: () {}),
+              backgroundColor: Color(0xFF255e36),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }
         });
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => HomeScreen()));
       } catch (e) {
-        _alertDialog('Error', '$e');
+        setState(() {
+          _loading = false;
+          handleClear();
+        });
+
+        if (e is FirebaseAuthException) {
+          switch (e.code) {
+            case 'user-not-found':
+              _alertDialog('Error', 'User tidak ditemukan.');
+              break;
+            case 'wrong-password':
+              _alertDialog('Error', 'Password salah silahkan coba lagi!');
+              break;
+            default:
+              _alertDialog('Error', 'Login gagal. Silahkan coba lagi.');
+          }
+        } else {
+          _alertDialog('Error', '$e');
+        }
         print('$e');
       } finally {
         setState(() => _loading = false);
@@ -72,11 +97,13 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                   child: Text('OK'))
             ],
           );
-        }));
+        }
+      )
+    );
   }
 
   handleClear() {
-    if(mounted){
+    if (mounted) {
       _pinController.clear();
       _emailController.clear();
     }

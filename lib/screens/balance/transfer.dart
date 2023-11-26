@@ -1,4 +1,6 @@
 import 'package:celam/screens/homescreen/home.dart';
+import 'package:celam/services/balanceAuth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,9 +16,70 @@ class Transfer extends StatefulWidget {
 class _TransferState extends State<Transfer> {
   User? _user;
 
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
-  final TextEditingController _jumlahController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+
+  Future<void> transfer() async {
+    String username = _usernameController.text;
+    String uid1 = _user!.uid;
+    double saldo1 = await FirestoreService().getUserBalance(uid1);
+
+    try {
+      String amount = _amountController.value.text;
+      double jumlah = double.parse(amount);
+
+      if (jumlah > saldo1) {
+        _alertDialog('Error', 'Saldo anda kurang');
+      }
+      CollectionReference collection =
+          FirebaseFirestore.instance.collection('tabungan');
+
+      QuerySnapshot querySnapshot =
+          await collection.where('username', isEqualTo: username).get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
+        String uid2 = documentSnapshot.id;
+        if (uid1 == uid2) {
+          _alertDialog('Error', 'Masukkan username pengguna lain!');
+        } else {
+          double saldo2 = await FirestoreService().getUserBalance(uid2);
+          await FirestoreService().updateBalance(uid2, saldo2 + jumlah);
+          await FirestoreService().addBalanceHistory(uid2, jumlah);
+
+          await FirestoreService().updateBalance(uid1, saldo1 - jumlah);
+          await FirestoreService().addTransferHistory(uid1, jumlah);
+          _alertDialog('Success', 'Berhasil mengirimkan kepada $uid2');
+        }
+      } else {
+        _alertDialog('Error', 'Username tidak terdaftar');
+      }
+    } catch (e) {
+      _alertDialog('Error', 'Error: $e');
+    }
+  }
+
+  void _alertDialog(String title, String content) {
+    showDialog(
+        context: context,
+        builder: ((context) {
+          return AlertDialog(
+            title: Text(title),
+            content: Text(
+              content,
+              style: TextStyle(color: Colors.black),
+            ),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'))
+            ],
+          );
+        }));
+  }
 
   @override
   void initState() {
@@ -55,7 +118,7 @@ class _TransferState extends State<Transfer> {
                 children: [
                   Container(
                     width: 240,
-                    height: 320,
+                    height: 300,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(25),
@@ -73,11 +136,11 @@ class _TransferState extends State<Transfer> {
                           SizedBox(
                             height: 16,
                           ),
-                          Text('Masukkan email penerima'),
+                          Text('Username penerima'),
                           TextFormField(
-                            controller: _emailController,
+                            controller: _usernameController,
                             decoration: InputDecoration(
-                              hintText: 'name@mail.com',
+                              hintText: 'username',
                               prefixIcon: Icon(Icons.person),
                               prefixIconColor: Color(0xFF255e36),
                             ),
@@ -89,22 +152,17 @@ class _TransferState extends State<Transfer> {
                             'Jumlah uang',
                           ),
                           TextFormField(
-                            controller: _jumlahController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              CurrencyInputFormatter()
-                            ],
-                            decoration: InputDecoration(
-                              hintText: 'Rp10.000',
-                              prefixIcon: Icon(Icons.attach_money),
-                              prefixStyle: TextStyle(color: Color(0xFF255e36)),
-                            ),
+                            controller: _amountController,
+                            decoration: InputDecoration(prefixText: 'Rp'),
                           ),
                           SizedBox(
                             height: 16,
                           ),
-                          ElevatedButton(onPressed: () {}, child: Text('Kirim'))
+                          ElevatedButton(
+                              onPressed: () {
+                                transfer();
+                              },
+                              child: Text('Kirim'))
                         ],
                       ),
                     ),
@@ -125,23 +183,5 @@ class _TransferState extends State<Transfer> {
             ),
           ),
         ));
-  }
-}
-
-class CurrencyInputFormatter extends TextInputFormatter {
-  TextEditingValue formatEditUpdate(
-      TextEditingValue value, TextEditingValue valueBaru) {
-    if (valueBaru.text.isEmpty) {
-      return valueBaru.copyWith(text: 'Rp');
-    }
-
-    final num = int.parse(valueBaru.text);
-    final formattedValue =
-        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0)
-            .format(num);
-
-    return valueBaru.copyWith(
-        text: formattedValue,
-        selection: TextSelection.collapsed(offset: formattedValue.length));
   }
 }

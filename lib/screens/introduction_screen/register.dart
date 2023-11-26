@@ -2,6 +2,7 @@ import 'package:celam/screens/introduction_screen/intro.dart';
 import 'package:celam/services/accountAuth.dart';
 import 'package:celam/services/balanceAuth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,6 +20,8 @@ class _RegisState extends State<Regis> {
 
   final _formKey = GlobalKey<FormState>();
 
+  final TextEditingController _usernameController = TextEditingController();
+
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _pinController = TextEditingController();
@@ -27,11 +30,15 @@ class _RegisState extends State<Regis> {
 
   handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
+    final username = _usernameController.value.text;
     final email = _emailController.value.text;
     final pin = _pinController.value.text;
     final confirmPin = _confirmPinController.value.text;
 
-    if (email.isEmpty || pin.isEmpty || confirmPin.isEmpty) {
+    if (username.isEmpty ||
+        email.isEmpty ||
+        pin.isEmpty ||
+        confirmPin.isEmpty) {
       _alertDialog('Error', 'Isi data dengan benar!');
     } else if (pin.length < 6) {
       _alertDialog('Error', 'PIN harus 6 angka');
@@ -44,13 +51,19 @@ class _RegisState extends State<Regis> {
         String uid = _user != null ? _user!.uid : '1';
         double initialBalance = 0.0;
         FirestoreService firestoreService = FirestoreService();
-        firestoreService.registerBalance(uid, initialBalance);
+        firestoreService.registerBalance(username, uid, initialBalance);
         _alertDialog('Success', 'Akun berhasil dibuat!');
-      } catch (e) {
-        _alertDialog('Error', '$e');
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'email-already-in-use') {
+          _alertDialog('Error', 'Email sudah terdaftar!');
+        } else {
+          _alertDialog('Error', 'Gagal membuat akun. Silahkan coba lagi.');
+        }
       } finally {
-        setState(() => _loading = false);
-        handleClear();
+        setState(() {
+          _loading = false;
+          handleClear();
+        });
       }
     }
   }
@@ -77,6 +90,7 @@ class _RegisState extends State<Regis> {
   }
 
   handleClear() {
+    _usernameController.clear();
     _emailController.clear();
     _pinController.clear();
     _confirmPinController.clear();
@@ -119,7 +133,7 @@ class _RegisState extends State<Regis> {
                       ),
                       Container(
                         width: 240,
-                        height: 400,
+                        height: 500,
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(25),
@@ -129,6 +143,25 @@ class _RegisState extends State<Regis> {
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
+                              Text(
+                                'Username',
+                                style: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                              TextFormField(
+                                controller: _usernameController,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(25)
+                                ],
+                                decoration: InputDecoration(
+                                  hintText: 'Your Name',
+                                  prefixIcon: Icon(Icons.person),
+                                  prefixIconColor: Color(0xFF255e36),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
                               Text(
                                 'Email',
                                 style: TextStyle(

@@ -3,8 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class FirestoreService {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> registerBalance(String uid, double initialBalance) async {
+  Future<void> registerBalance(
+      String username, String uid, double initialBalance) async {
     await _firestore.collection('tabungan').doc(uid).set({
+      'username': username,
       'saldo': initialBalance,
       'timestamp': FieldValue.serverTimestamp()
     }).catchError((e) {
