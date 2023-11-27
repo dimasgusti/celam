@@ -71,9 +71,8 @@ class _DashboardState extends State<Dashboard> {
       child: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/background/bg2-icon.png'),
+                image: AssetImage('assets/background/bg1-icon.png'),
                 fit: BoxFit.cover)),
-        // color: Color(0xFFf9f7f7),
         child: Column(
           children: [
             Row(
@@ -319,40 +318,84 @@ class _DashboardState extends State<Dashboard> {
                                 decimalDigits: 0,
                               ).format(history[index]['amount'] as double);
                               String type = history[index]['type'] as String;
+                              String uid = history[index]['uid'];
                               bool isDeposit = type == 'deposit';
                               DateTime timestamp =
                                   (history[index]['timestamp'] as Timestamp)
                                       .toDate();
                               return Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  color: Colors
-                                      .white70,
-                                  child: ListTile(
-                                    title: Text(
-                                      amount,
-                                      style: TextStyle(
-                                        color: isDeposit
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    subtitle: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          DateFormat('yyyy-MM-dd')
-                                              .format(timestamp),
-                                          style: TextStyle(color: Colors.black),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text('Transaksi'),
+                                            content: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  if (type == 'deposit')
+                                                    Text(
+                                                      'Deposit',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold
+                                                      ),
+                                                    )
+                                                  else
+                                                    Text(
+                                                      'Transfer kepada $uid',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold
+                                                      ),
+                                                    ),
+                                                  Text('Jumlah: $amount'),
+                                                  Text(
+                                                    'Tanggal: ${DateFormat('dd-MM-yyyy').format(timestamp)}',
+                                                    style: TextStyle(
+                                                        color: Colors.black),
+                                                  ),
+                                                  Text(
+                                                    'Waktu: ${DateFormat('HH:mm').format(timestamp)}',
+                                                    style: TextStyle(
+                                                        color: Colors.black),
+                                                  ),
+                                                ]),
+                                          );
+                                        });
+                                  },
+                                  child: Container(
+                                    color: Colors.white70,
+                                    child: ListTile(
+                                        title: Text(
+                                          amount,
+                                          style: TextStyle(
+                                            color: isDeposit
+                                                ? Colors.green
+                                                : Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
-                                        Text(
-                                          DateFormat('HH:mm:ss')
-                                            .format(timestamp),
-                                          style: TextStyle(color: Colors.black),
-                                        )
-                                      ],
-                                    )
+                                        subtitle: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              DateFormat('dd-MM-yyyy')
+                                                  .format(timestamp),
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            Text(
+                                              DateFormat('HH:mm')
+                                                  .format(timestamp),
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            )
+                                          ],
+                                        )),
                                   ),
                                 ),
                               );

@@ -72,6 +72,8 @@ flutter:
     - assets/background/bg2.png
     - assets/background/bg2-icon.png
     - assets/background/bg1-icon.png
+    - assets/background/bg2-dark-icon.png
+    - assets/background/bg1-dark-icon.png
     - assets/background/bg3.png
     - assets/images/qr.jpeg
 

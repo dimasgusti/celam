@@ -122,7 +122,7 @@ class _TopupState extends State<Topup> {
       body: Container(
         decoration: BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/background/bg1-icon.png'),
+                image: AssetImage('assets/background/bg2-icon.png'),
                 fit: BoxFit.cover)),
         child: Padding(
           padding: const EdgeInsets.only(top: 8.0),

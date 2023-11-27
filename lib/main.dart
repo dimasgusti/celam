@@ -23,9 +23,30 @@ class NotLogged extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-          useMaterial3: true,
-          fontFamily: 'OpenSans'),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        useMaterial3: true,
+        textTheme: ThemeData.light().textTheme.copyWith(
+          bodyText1: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+          bodyText2: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        useMaterial3: true,
+        textTheme: ThemeData.dark().textTheme.copyWith(
+          bodyText1: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+          bodyText2: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+      themeMode: ThemeMode.system,
       home: IntroductionScreen(),
     );
   }
@@ -40,9 +61,30 @@ class Logged extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
-          useMaterial3: true,
-          fontFamily: 'OpenSans'),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        useMaterial3: true,
+        textTheme: ThemeData.light().textTheme.copyWith(
+          bodyText1: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+          bodyText2: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+      darkTheme: ThemeData.dark().copyWith(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        useMaterial3: true,
+        textTheme: ThemeData.dark().textTheme.copyWith(
+          bodyText1: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+          bodyText2: TextStyle(
+            fontFamily: 'OpenSans',
+          ),
+        ),
+      ),
+      themeMode: ThemeMode.system,
       home: HomeScreen(),
     );
   }
