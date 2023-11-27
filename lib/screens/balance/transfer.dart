@@ -31,6 +31,7 @@ class _TransferState extends State<Transfer> {
 
       if (jumlah > saldo1) {
         _alertDialog('Error', 'Saldo anda kurang');
+        return;
       }
       CollectionReference collection =
           FirebaseFirestore.instance.collection('tabungan');
@@ -44,13 +45,11 @@ class _TransferState extends State<Transfer> {
         if (uid1 == uid2) {
           _alertDialog('Error', 'Masukkan username pengguna lain!');
         } else {
-          double saldo2 = await FirestoreService().getUserBalance(uid2);
-          await FirestoreService().updateBalance(uid2, saldo2 + jumlah);
-          await FirestoreService().addBalanceHistory(uid2, jumlah);
+          Map<String, dynamic> userData =
+              documentSnapshot.data() as Map<String, dynamic>;
 
-          await FirestoreService().updateBalance(uid1, saldo1 - jumlah);
-          await FirestoreService().addTransferHistory(uid1, jumlah);
-          _alertDialog('Success', 'Berhasil mengirimkan kepada $uid2');
+          String userPenerima = userData['username'];
+          _confirm(context, uid2, userPenerima, jumlah, saldo1, uid1);
         }
       } else {
         _alertDialog('Error', 'Username tidak terdaftar');
@@ -58,6 +57,63 @@ class _TransferState extends State<Transfer> {
     } catch (e) {
       _alertDialog('Error', 'Error: $e');
     }
+  }
+
+  Future<void> _confirm(BuildContext context, String uid2, String userPenerima,
+      double amount, double saldo1, String uid1) async {
+    String formatRupiah =
+        NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+            .format(amount);
+
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Lanjutkan?'),
+            content: Container(
+              width: 200,
+              height: 70,
+              child: Column(
+                children: [
+                  Text(
+                    'Kirim: $formatRupiah',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    'Kepada: $userPenerima',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Batal')),
+              TextButton(
+                  onPressed: () async {
+                    double saldo2 =
+                        await FirestoreService().getUserBalance(uid2);
+                    await FirestoreService()
+                        .updateBalance(uid2, saldo2 + amount);
+                    await FirestoreService().addBalanceHistory(uid2, amount);
+
+                    await FirestoreService()
+                        .updateBalance(uid1, saldo1 - amount);
+                    await FirestoreService().addTransferHistory(uid1, amount);
+                    Navigator.pop(context);
+                    _alertDialog('Success',
+                        'Berhasil mengirimkan $formatRupiah kepada: $userPenerima');
+                    handleClear();
+                  },
+                  child: Text('Kirim'))
+            ],
+          );
+        });
   }
 
   void _alertDialog(String title, String content) {
@@ -79,6 +135,13 @@ class _TransferState extends State<Transfer> {
             ],
           );
         }));
+  }
+
+  handleClear() {
+    if (mounted) {
+      _usernameController.clear();
+      _amountController.clear();
+    }
   }
 
   @override

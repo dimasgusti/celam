@@ -119,97 +119,103 @@ class _TopupState extends State<Topup> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
-        child: Center(
-          child: ListView(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Saldo aktif'),
-                    FutureBuilder<double>(
-                      future: _user != null
-                          ? FirestoreService().getUserBalance(_user!.uid)
-                          : null,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator(
-                            strokeWidth: 2.0,
-                          );
-                        } else if (snapshot.hasError) {
-                          return Text('Error mendapatkan saldo');
-                        } else {
-                          double userBalance = snapshot.data ?? 0.0;
-
-                          String formatRupiah = NumberFormat.currency(
-                                  locale: 'id_ID',
-                                  symbol: 'Rp ',
-                                  decimalDigits: 0)
-                              .format(userBalance);
-
-                          return Text(
-                            formatRupiah,
-                          );
-                        }
-                      },
-                    )
-                  ],
-                ),
-              ),
-              Divider(
-                color: Colors.grey,
-                thickness: 1,
-                height: 20,
-              ),
-              Card(
-                child: InkWell(
-                  onTap: () {
-                    _confirm(context, 50000);
-                  },
-                  child: ListTile(
-                    title: Text('Rp 50.000'),
-                    // subtitle: Text('Subtitle'),
+      body: Container(
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/background/bg1-icon.png'),
+                fit: BoxFit.cover)),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Center(
+            child: ListView(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Saldo aktif'),
+                      FutureBuilder<double>(
+                        future: _user != null
+                            ? FirestoreService().getUserBalance(_user!.uid)
+                            : null,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator(
+                              strokeWidth: 2.0,
+                            );
+                          } else if (snapshot.hasError) {
+                            return Text('Error mendapatkan saldo');
+                          } else {
+                            double userBalance = snapshot.data ?? 0.0;
+      
+                            String formatRupiah = NumberFormat.currency(
+                                    locale: 'id_ID',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                .format(userBalance);
+      
+                            return Text(
+                              formatRupiah,
+                            );
+                          }
+                        },
+                      )
+                    ],
                   ),
                 ),
-              ),
-              Card(
-                child: InkWell(
-                  onTap: () {
-                    _confirm(context, 100000);
-                  },
-                  child: ListTile(
-                    title: Text('Rp 100.000'),
-                    // subtitle: Text('Subtitle'),
+                Divider(
+                  color: Colors.grey,
+                  thickness: 1,
+                  height: 20,
+                ),
+                Card(
+                  child: InkWell(
+                    onTap: () {
+                      _confirm(context, 50000);
+                    },
+                    child: ListTile(
+                      title: Text('Rp 50.000'),
+                      // subtitle: Text('Subtitle'),
+                    ),
                   ),
                 ),
-              ),
-              Card(
-                child: InkWell(
-                  onTap: () {
-                    _confirm(context, 250000);
-                  },
-                  child: ListTile(
-                    title: Text('Rp 250.000'),
-                    // subtitle: Text('Subtitle'),
+                Card(
+                  child: InkWell(
+                    onTap: () {
+                      _confirm(context, 100000);
+                    },
+                    child: ListTile(
+                      title: Text('Rp 100.000'),
+                      // subtitle: Text('Subtitle'),
+                    ),
                   ),
                 ),
-              ),
-              Card(
-                child: InkWell(
-                  onTap: () {
-                    _confirm(context, 500000);
-                  },
-                  child: ListTile(
-                    title: Text('Rp 500.000'),
-                    // subtitle: Text('Subtitle'),
+                Card(
+                  child: InkWell(
+                    onTap: () {
+                      _confirm(context, 250000);
+                    },
+                    child: ListTile(
+                      title: Text('Rp 250.000'),
+                      // subtitle: Text('Subtitle'),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Card(
+                  child: InkWell(
+                    onTap: () {
+                      _confirm(context, 500000);
+                    },
+                    child: ListTile(
+                      title: Text('Rp 500.000'),
+                      // subtitle: Text('Subtitle'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
