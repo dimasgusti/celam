@@ -71,9 +71,8 @@ class _TransferState extends State<Transfer> {
           return AlertDialog(
             title: Text('Lanjutkan?'),
             content: Container(
-              width: 200,
-              height: 70,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     'Kirim: $formatRupiah',

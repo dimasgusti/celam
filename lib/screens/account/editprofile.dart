@@ -11,9 +11,20 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text(
-        'test'
-      )
-    );
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          backgroundColor: Color(0xFF255e36),
+          iconTheme: IconThemeData(color: Colors.white),
+          title: Text(
+            'Edit profil',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'OpenSans',
+                color: Colors.white),
+          ),
+          centerTitle: true,
+          // elevation: 1,
+        ),
+        body: Text('test'));
   }
 }

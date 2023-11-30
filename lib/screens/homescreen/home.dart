@@ -1,4 +1,5 @@
 import 'package:celam/screens/account/profile.dart';
+import 'package:celam/screens/account/settingsPage.dart';
 import 'package:celam/screens/balance/topup.dart';
 import 'package:celam/screens/homescreen/dashboard.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _children = [
     Dashboard(),
     Topup(),
-    Profile(),
+    SettingsPage(),
   ];
 
   void onTapped(int index){
@@ -59,8 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Deposit'
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Akun'
+            icon: Icon(Icons.settings),
+            label: 'Pengaturan'
           ),
         ],
         elevation: 10,

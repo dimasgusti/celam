@@ -117,9 +117,13 @@ class _TopupState extends State<Topup> {
 
   @override
   Widget build(BuildContext context) {
+    var lebar = MediaQuery.of(context).size.width;
+    var tinggi = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(
+        width: lebar,
+        height: tinggi,
         decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/background/bg2-icon.png'),

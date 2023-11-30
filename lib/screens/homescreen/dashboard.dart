@@ -65,349 +65,362 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    var lebar = MediaQuery.of(context).size.width;
+    var tinggi = MediaQuery.of(context).size.height;
     return Scaffold(
-        body: Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/background/bg1-icon.png'),
-                fit: BoxFit.cover)),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.account_circle,
-                  size: 72,
-                  color: Color(0xFF255e36),
-                ),
-                SizedBox(
-                  width: 12,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Selamat datang,'),
-                    Text(_user != null ? _user!.email ?? 'Tamu' : 'Tamu')
-                  ],
-                ),
-                Spacer(),
-                TextButton(
-                    onPressed: () {
-                      _showQR(context);
-                    },
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.qr_code_2,
-                          size: 28,
-                          color: Color(0xFF255e36),
+        body: Container(
+          width: lebar,
+          height: tinggi,
+          child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage('assets/background/bg1-icon.png'),
+                  fit: BoxFit.cover)
+            ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Container(
+                      width: 75,
+                      height: 75,
+                      child: CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage: AssetImage('assets/images/profile.jpg'),
                         ),
-                        Text(
-                          'Lihat QR',
-                          style: TextStyle(fontSize: 12),
-                        )
-                      ],
-                    ))
-              ],
-            ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-              height: 20,
-            ),
-            // Saldo
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Saldo aktif: ',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                FutureBuilder<double>(
+                    ),
+                  ),
+                  SizedBox(
+                    width: 12,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Selamat datang,'),
+                      Text(_user != null ? _user!.email ?? 'Tamu' : 'Tamu')
+                    ],
+                  ),
+                  Spacer(),
+                  TextButton(
+                      onPressed: () {
+                        _showQR(context);
+                      },
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.qr_code_2,
+                            size: 28,
+                            color: Color(0xFF255e36),
+                          ),
+                          Text(
+                            'Lihat QR',
+                            style: TextStyle(fontSize: 12),
+                          )
+                        ],
+                      ))
+                ],
+              ),
+              Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 20,
+              ),
+              // Saldo
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Saldo aktif: ',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  FutureBuilder<double>(
+                    future: _user != null
+                        ? FirestoreService().getUserBalance(_user!.uid)
+                        : null,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('Error mendapatkan saldo');
+                      } else {
+                        double userBalance = snapshot.data ?? 0.0;
+        
+                        String formatRupiah = NumberFormat.currency(
+                                locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                            .format(userBalance);
+        
+                        return Text(
+                          formatRupiah,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        );
+                      }
+                    },
+                  )
+                ],
+              ),
+              Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 20,
+              ),
+              // Aksi cepat
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Transfer()));
+                          },
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.send,
+                              ),
+                              Text('Kirim')
+                            ],
+                          ))
+                    ],
+                  ),
+                  Container(
+                    height: 40,
+                    width: 1,
+                    color: Colors.grey,
+                    margin: EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  Column(
+                    children: [
+                      TextButton(
+                          onPressed: () {},
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.history,
+                              ),
+                              Text('Riwayat')
+                            ],
+                          ))
+                    ],
+                  ),
+                ],
+              ),
+              Divider(
+                color: Colors.grey,
+                thickness: 1,
+                height: 20,
+              ),
+              // Saldo masuk dan keluar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        'Saldo masuk',
+                      ),
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: _user != null
+                            ? firestoreService.getBalanceHistory(_user!.uid)
+                            : null,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator(
+                              strokeWidth: 2,
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child:
+                                  Text('Error mengambil data: ${snapshot.error}'),
+                            );
+                          } else {
+                            double totalDeposit =
+                                overallBalance(snapshot.data ?? [], 'deposit');
+                            return Text(
+                              '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            );
+                          }
+                        },
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        'Saldo keluar',
+                      ),
+                      FutureBuilder<List<Map<String, dynamic>>>(
+                        future: _user != null
+                            ? firestoreService.getBalanceHistory(_user!.uid)
+                            : null,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return CircularProgressIndicator(
+                              strokeWidth: 2,
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child:
+                                  Text('Error mengambil data: ${snapshot.error}'),
+                            );
+                          } else {
+                            double totalDeposit =
+                                overallBalance(snapshot.data ?? [], 'withdraw');
+                            return Text(
+                              '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            );
+                          }
+                        },
+                      )
+                    ],
+                  )
+                ],
+              ),
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
                   future: _user != null
-                      ? FirestoreService().getUserBalance(_user!.uid)
+                      ? firestoreService.getBalanceHistory(_user!.uid)
                       : null,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator(
-                        strokeWidth: 2.0,
-                      );
+                      return Center(
+                          child: CircularProgressIndicator(strokeWidth: 2.0));
                     } else if (snapshot.hasError) {
-                      return Text('Error mendapatkan saldo');
+                      return Center(
+                          child: Text('Error mengambil data: ${snapshot.error}'));
                     } else {
-                      double userBalance = snapshot.data ?? 0.0;
-
-                      String formatRupiah = NumberFormat.currency(
-                              locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
-                          .format(userBalance);
-
-                      return Text(
-                        formatRupiah,
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      );
+                      List<Map<String, dynamic>> history = snapshot.data ?? [];
+                      return history.isEmpty
+                          ? Center(
+                              child: Container(
+                              height: 50,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Color(0xFF255e36),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Tidak ada riwayat',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ))
+                          : ListView.builder(
+                              itemCount: history.length,
+                              itemBuilder: (context, index) {
+                                String amount = NumberFormat.currency(
+                                  locale: 'id_ID',
+                                  symbol: 'Rp ',
+                                  decimalDigits: 0,
+                                ).format(history[index]['amount'] as double);
+                                String type = history[index]['type'] as String;
+                                String uid = history[index]['uid'];
+                                bool isDeposit = type == 'deposit';
+                                DateTime timestamp =
+                                    (history[index]['timestamp'] as Timestamp)
+                                        .toDate();
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return AlertDialog(
+                                              title: Text('Transaksi'),
+                                              content: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    if (type == 'deposit')
+                                                      Text(
+                                                        'Deposit',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold
+                                                        ),
+                                                      )
+                                                    else
+                                                      Text(
+                                                        'Transfer',
+                                                        style: TextStyle(
+                                                          fontWeight: FontWeight.bold
+                                                        ),
+                                                      ),
+                                                    Text('Jumlah: $amount'),
+                                                    Text(
+                                                      'Tanggal: ${DateFormat('dd-MM-yyyy').format(timestamp)}',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    Text(
+                                                      'Waktu: ${DateFormat('HH:mm').format(timestamp)}',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                  ]),
+                                            );
+                                          });
+                                    },
+                                    child: Container(
+                                      color: Colors.white70,
+                                      child: ListTile(
+                                          title: Text(
+                                            amount,
+                                            style: TextStyle(
+                                              color: isDeposit
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          subtitle: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                DateFormat('dd-MM-yyyy')
+                                                    .format(timestamp),
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                              Text(
+                                                DateFormat('HH:mm')
+                                                    .format(timestamp),
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              )
+                                            ],
+                                          )),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
                     }
                   },
-                )
-              ],
-            ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-              height: 20,
-            ),
-            // Aksi cepat
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Transfer()));
-                        },
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.send,
-                            ),
-                            Text('Kirim')
-                          ],
-                        ))
-                  ],
                 ),
-                Container(
-                  height: 40,
-                  width: 1,
-                  color: Colors.grey,
-                  margin: EdgeInsets.symmetric(horizontal: 8),
-                ),
-                Column(
-                  children: [
-                    TextButton(
-                        onPressed: () {},
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.history,
-                            ),
-                            Text('Riwayat')
-                          ],
-                        ))
-                  ],
-                ),
-              ],
-            ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-              height: 20,
-            ),
-            // Saldo masuk dan keluar
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    Text(
-                      'Saldo masuk',
-                    ),
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: _user != null
-                          ? firestoreService.getBalanceHistory(_user!.uid)
-                          : null,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator(
-                            strokeWidth: 2,
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child:
-                                Text('Error mengambil data: ${snapshot.error}'),
-                          );
-                        } else {
-                          double totalDeposit =
-                              overallBalance(snapshot.data ?? [], 'deposit');
-                          return Text(
-                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          );
-                        }
-                      },
-                    )
-                  ],
-                ),
-                Column(
-                  children: [
-                    Text(
-                      'Saldo keluar',
-                    ),
-                    FutureBuilder<List<Map<String, dynamic>>>(
-                      future: _user != null
-                          ? firestoreService.getBalanceHistory(_user!.uid)
-                          : null,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator(
-                            strokeWidth: 2,
-                          );
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child:
-                                Text('Error mengambil data: ${snapshot.error}'),
-                          );
-                        } else {
-                          double totalDeposit =
-                              overallBalance(snapshot.data ?? [], 'withdraw');
-                          return Text(
-                            '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          );
-                        }
-                      },
-                    )
-                  ],
-                )
-              ],
-            ),
-            Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: _user != null
-                    ? firestoreService.getBalanceHistory(_user!.uid)
-                    : null,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                        child: CircularProgressIndicator(strokeWidth: 2.0));
-                  } else if (snapshot.hasError) {
-                    return Center(
-                        child: Text('Error mengambil data: ${snapshot.error}'));
-                  } else {
-                    List<Map<String, dynamic>> history = snapshot.data ?? [];
-                    return history.isEmpty
-                        ? Center(
-                            child: Container(
-                            height: 50,
-                            width: 150,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Color(0xFF255e36),
-                            ),
-                            child: Center(
-                              child: Text(
-                                'Tidak ada riwayat',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ))
-                        : ListView.builder(
-                            itemCount: history.length,
-                            itemBuilder: (context, index) {
-                              String amount = NumberFormat.currency(
-                                locale: 'id_ID',
-                                symbol: 'Rp ',
-                                decimalDigits: 0,
-                              ).format(history[index]['amount'] as double);
-                              String type = history[index]['type'] as String;
-                              String uid = history[index]['uid'];
-                              bool isDeposit = type == 'deposit';
-                              DateTime timestamp =
-                                  (history[index]['timestamp'] as Timestamp)
-                                      .toDate();
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Transaksi'),
-                                            content: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  if (type == 'deposit')
-                                                    Text(
-                                                      'Deposit',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold
-                                                      ),
-                                                    )
-                                                  else
-                                                    Text(
-                                                      'Transfer kepada $uid',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold
-                                                      ),
-                                                    ),
-                                                  Text('Jumlah: $amount'),
-                                                  Text(
-                                                    'Tanggal: ${DateFormat('dd-MM-yyyy').format(timestamp)}',
-                                                    style: TextStyle(
-                                                        color: Colors.black),
-                                                  ),
-                                                  Text(
-                                                    'Waktu: ${DateFormat('HH:mm').format(timestamp)}',
-                                                    style: TextStyle(
-                                                        color: Colors.black),
-                                                  ),
-                                                ]),
-                                          );
-                                        });
-                                  },
-                                  child: Container(
-                                    color: Colors.white70,
-                                    child: ListTile(
-                                        title: Text(
-                                          amount,
-                                          style: TextStyle(
-                                            color: isDeposit
-                                                ? Colors.green
-                                                : Colors.red,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        subtitle: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              DateFormat('dd-MM-yyyy')
-                                                  .format(timestamp),
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                            Text(
-                                              DateFormat('HH:mm')
-                                                  .format(timestamp),
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            )
-                                          ],
-                                        )),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                  }
-                },
+              ),
+            ],
+          ),
               ),
             ),
-          ],
-        ),
-      ),
-    ));
+        ));
   }
 }

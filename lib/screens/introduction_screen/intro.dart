@@ -111,188 +111,194 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var lebar = MediaQuery.of(context).size.width;
+    var tinggi = MediaQuery.of(context).size.height;
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: PageView(
-        controller: _pageController,
-        children: [
-          // Halaman pertama
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/background/bg1.png'),
-                    fit: BoxFit.cover)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image(
-                    image: AssetImage('assets/images/celam_logo.png'),
-                    width: 200,
-                    height: 200,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(
-                    height: 64,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _pageController.animateToPage(1,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.easeInOut);
-                    },
-                    icon: Icon(Icons.arrow_forward_ios),
-                    color: Colors.white,
-                  )
-                ],
+      body: Container(
+        width: lebar,
+        height: tinggi,
+        child: PageView(
+          controller: _pageController,
+          children: [
+            // Halaman pertama
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/background/bg1.png'),
+                      fit: BoxFit.cover)),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image(
+                      image: AssetImage('assets/images/celam_logo.png'),
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(
+                      height: 64,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _pageController.animateToPage(1,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.easeInOut);
+                      },
+                      icon: Icon(Icons.arrow_forward_ios),
+                      color: Colors.white,
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          // Halaman kedua
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/background/bg2.png'),
-                    fit: BoxFit.cover)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'CELAM',
-                    style: TextStyle(
-                        fontSize: 48,
-                        color: Color(0xFF255e36),
-                        fontFamily: 'KemasyuranJawa'),
-                  ),
-                  Text(
-                    'Solusi Pintar Keuangan Anda',
-                    style: TextStyle(
-                        fontSize: 24,
-                        color: Color(0xFF255e36),
-                        fontFamily: 'OpenSans'),
-                  ),
-                  SizedBox(
-                    height: 64,
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      _pageController.animateToPage(2,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.easeInOut);
-                    },
-                    icon: Icon(Icons.arrow_forward_ios),
-                    color: Color(0xFF255e36),
-                  )
-                ],
+            // Halaman kedua
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/background/bg2.png'),
+                      fit: BoxFit.cover)),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'CELAM',
+                      style: TextStyle(
+                          fontSize: 48,
+                          color: Color(0xFF255e36),
+                          fontFamily: 'KemasyuranJawa'),
+                    ),
+                    Text(
+                      'Solusi Pintar Keuangan Anda',
+                      style: TextStyle(
+                          fontSize: 24,
+                          color: Color(0xFF255e36),
+                          fontFamily: 'OpenSans'),
+                    ),
+                    SizedBox(
+                      height: 64,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        _pageController.animateToPage(2,
+                            duration: Duration(milliseconds: 500),
+                            curve: Curves.easeInOut);
+                      },
+                      icon: Icon(Icons.arrow_forward_ios),
+                      color: Color(0xFF255e36),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          // Halaman ketiga
-          Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/background/bg3.png'),
-                    fit: BoxFit.cover)),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Masuk',
-                    style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                  Container(
-                    width: 240,
-                    height: 320,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(25),
-                            bottomRight: Radius.circular(25)),
-                        color: Colors.white),
-                    child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              Text(
-                                'Email',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              TextFormField(
-                                controller: _emailController,
-                                inputFormatters: [
-                                  LengthLimitingTextInputFormatter(20)
-                                ],
-                                decoration: InputDecoration(
-                                  hintText: 'name@mail.com',
-                                  prefixIcon: Icon(Icons.person),
-                                  prefixIconColor: Color(0xFF255e36),
+            // Halaman ketiga
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage('assets/background/bg3.png'),
+                      fit: BoxFit.cover)),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Masuk',
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white),
+                    ),
+                    Container(
+                      width: 240,
+                      height: 320,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(25),
+                              bottomRight: Radius.circular(25)),
+                          color: Colors.white),
+                      child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Email',
+                                  style: TextStyle(
+                                      fontSize: 18, fontWeight: FontWeight.bold),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              Text(
-                                'PIN',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              TextFormField(
-                                  controller: _pinController,
-                                  obscureText: true,
-                                  keyboardType: TextInputType.number,
+                                TextFormField(
+                                  controller: _emailController,
                                   inputFormatters: [
-                                    LengthLimitingTextInputFormatter(6)
+                                    LengthLimitingTextInputFormatter(20)
                                   ],
                                   decoration: InputDecoration(
-                                      hintText: '******',
-                                      prefixIcon: Icon(Icons.password),
-                                      prefixIconColor: Color(0xFF255e36))),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              ElevatedButton(
-                                onPressed: () => handleSubmit(),
-                                child: _loading
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        ),
-                                      )
-                                    : Icon(Icons.login),
-                              ),
-                              // SizedBox(height: 20,),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Regis()));
-                                },
-                                child: Text(
-                                  'Akun baru?',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 12),
+                                    hintText: 'name@mail.com',
+                                    prefixIcon: Icon(Icons.person),
+                                    prefixIconColor: Color(0xFF255e36),
+                                  ),
                                 ),
-                              )
-                            ],
-                          ),
-                        )),
-                  )
-                ],
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                Text(
+                                  'PIN',
+                                  style: TextStyle(
+                                      fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                TextFormField(
+                                    controller: _pinController,
+                                    obscureText: true,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      LengthLimitingTextInputFormatter(6)
+                                    ],
+                                    decoration: InputDecoration(
+                                        hintText: '******',
+                                        prefixIcon: Icon(Icons.password),
+                                        prefixIconColor: Color(0xFF255e36))),
+                                SizedBox(
+                                  height: 16,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => handleSubmit(),
+                                  child: _loading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : Icon(Icons.login),
+                                ),
+                                // SizedBox(height: 20,),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Regis()));
+                                  },
+                                  child: Text(
+                                    'Akun baru?',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 12),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

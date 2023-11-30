@@ -1,6 +1,7 @@
 import 'package:celam/screens/introduction_screen/intro.dart';
 import 'package:celam/services/accountAuth.dart';
 import 'package:celam/services/balanceAuth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -35,36 +36,47 @@ class _RegisState extends State<Regis> {
     final pin = _pinController.value.text;
     final confirmPin = _confirmPinController.value.text;
 
-    if (username.isEmpty ||
-        email.isEmpty ||
-        pin.isEmpty ||
-        confirmPin.isEmpty) {
-      _alertDialog('Error', 'Isi data dengan benar!');
-    } else if (pin.length < 6) {
-      _alertDialog('Error', 'PIN harus 6 angka');
-    } else if (pin != confirmPin) {
-      _alertDialog('Error', 'Password tidak sama');
-    } else {
-      setState(() => _loading = true);
-      try {
-        await Auth().regis(email, pin);
-        String uid = _user != null ? _user!.uid : '1';
-        double initialBalance = 0.0;
-        FirestoreService firestoreService = FirestoreService();
-        firestoreService.registerBalance(username, uid, initialBalance);
-        _alertDialog('Success', 'Akun berhasil dibuat!');
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'email-already-in-use') {
-          _alertDialog('Error', 'Email sudah terdaftar!');
-        } else {
-          _alertDialog('Error', 'Gagal membuat akun. Silahkan coba lagi.');
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('tabungan')
+          .where('username', isEqualTo: username)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        _alertDialog('Error', 'Username sudah digunakan');
+      } else if (username.isEmpty ||
+          email.isEmpty ||
+          pin.isEmpty ||
+          confirmPin.isEmpty) {
+        _alertDialog('Error', 'Isi data dengan benar!');
+      } else if (pin.length < 6) {
+        _alertDialog('Error', 'PIN harus 6 angka');
+      } else if (pin != confirmPin) {
+        _alertDialog('Error', 'Password tidak sama');
+      } else {
+        setState(() => _loading = true);
+        try {
+          await Auth().regis(email, pin);
+          String uid = _user != null ? _user!.uid : '1';
+          double initialBalance = 0.0;
+          FirestoreService firestoreService = FirestoreService();
+          firestoreService.registerBalance(username, uid, initialBalance);
+          _alertDialog('Success', 'Akun berhasil dibuat!');
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'email-already-in-use') {
+            _alertDialog('Error', 'Email sudah terdaftar!');
+          } else {
+            _alertDialog('Error', 'Gagal membuat akun. Silahkan coba lagi.');
+          }
+        } finally {
+          setState(() {
+            _loading = false;
+            handleClear();
+          });
         }
-      } finally {
-        setState(() {
-          _loading = false;
-          handleClear();
-        });
       }
+    } catch (e) {
+      _alertDialog('Error', '$e');
     }
   }
 
@@ -108,9 +120,13 @@ class _RegisState extends State<Regis> {
 
   @override
   Widget build(BuildContext context) {
+    var lebar = MediaQuery.of(context).size.width;
+    var tinggi = MediaQuery.of(context).size.height;
     return Scaffold(
         resizeToAvoidBottomInset: false,
         body: Container(
+          width: lebar,
+          height: tinggi,
           decoration: BoxDecoration(
             image: DecorationImage(
                 image: AssetImage('assets/background/bg3.png'),
@@ -201,7 +217,7 @@ class _RegisState extends State<Regis> {
                                 height: 16,
                               ),
                               Text(
-                                'Verify PIN',
+                                'Konfirmasi PIN',
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),

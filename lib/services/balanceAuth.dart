@@ -36,6 +36,37 @@ class FirestoreService {
     }
   }
 
+  Future<String> getUsername(String uid) async {
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('tabungan')
+          .doc(uid)
+          .get();
+
+      if (snapshot.exists) {
+        var userName = snapshot.data();
+
+        if (userName != null && userName.containsKey('username')) {
+          return (userName['username'] as String).toString();
+        }
+      }
+    } catch (e) {
+      return 'tamu';
+    }
+    return 'tamu';
+  }
+
+  Future<void> updateUser(String uid, String usernameBaru) async {
+    try {
+      await _firestore
+          .collection('tabungan')
+          .doc(uid)
+          .update({'username': usernameBaru});
+    } catch (e) {
+      print('$e');
+    }
+  }
+
   Future<void> addBalanceHistory(String uid, double amount) async {
     await FirebaseFirestore.instance.collection('riwayatTabungan').add({
       'uid': uid,
@@ -69,5 +100,14 @@ class FirestoreService {
         .get();
 
     return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<bool> isUsernameExists(String username) async {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await FirebaseFirestore.instance
+        .collection('tabungan')
+        .where('username', isEqualTo: username)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
   }
 }
