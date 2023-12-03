@@ -1,4 +1,3 @@
-import 'package:celam/screens/account/profile.dart';
 import 'package:celam/screens/account/settingsPage.dart';
 import 'package:celam/screens/balance/topup.dart';
 import 'package:celam/screens/homescreen/dashboard.dart';

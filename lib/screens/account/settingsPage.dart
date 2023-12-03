@@ -128,7 +128,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     future: FirestoreService().getUsername(uid),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return CircularProgressIndicator(strokeWidth: 2.0,);
                       } else {
                         return Text(
                           snapshot.data ?? 'No username',

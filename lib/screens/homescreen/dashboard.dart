@@ -69,16 +69,15 @@ class _DashboardState extends State<Dashboard> {
     var tinggi = MediaQuery.of(context).size.height;
     return Scaffold(
         body: Container(
-          width: lebar,
-          height: tinggi,
-          child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Container(
+      width: lebar,
+      height: tinggi,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Container(
           decoration: BoxDecoration(
               image: DecorationImage(
                   image: AssetImage('assets/background/bg1-icon.png'),
-                  fit: BoxFit.cover)
-            ),
+                  fit: BoxFit.cover)),
           child: Column(
             children: [
               Row(
@@ -89,9 +88,10 @@ class _DashboardState extends State<Dashboard> {
                       width: 75,
                       height: 75,
                       child: CircleAvatar(
-                          radius: 50.0,
-                          backgroundImage: AssetImage('assets/images/profile.jpg'),
-                        ),
+                        radius: 50.0,
+                        backgroundImage:
+                            AssetImage('assets/images/profile.jpg'),
+                      ),
                     ),
                   ),
                   SizedBox(
@@ -151,11 +151,13 @@ class _DashboardState extends State<Dashboard> {
                         return Text('Error mendapatkan saldo');
                       } else {
                         double userBalance = snapshot.data ?? 0.0;
-        
+
                         String formatRupiah = NumberFormat.currency(
-                                locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0)
+                                locale: 'id_ID',
+                                symbol: 'Rp ',
+                                decimalDigits: 0)
                             .format(userBalance);
-        
+
                         return Text(
                           formatRupiah,
                           style: TextStyle(
@@ -203,7 +205,8 @@ class _DashboardState extends State<Dashboard> {
                   Column(
                     children: [
                       TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                          },
                           child: Column(
                             children: [
                               Icon(
@@ -242,15 +245,15 @@ class _DashboardState extends State<Dashboard> {
                             );
                           } else if (snapshot.hasError) {
                             return Center(
-                              child:
-                                  Text('Error mengambil data: ${snapshot.error}'),
+                              child: Text(
+                                  'Error mengambil data: ${snapshot.error}'),
                             );
                           } else {
                             double totalDeposit =
                                 overallBalance(snapshot.data ?? [], 'deposit');
                             return Text(
                               '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(fontWeight: FontWeight.bold,),
                             );
                           }
                         },
@@ -274,8 +277,8 @@ class _DashboardState extends State<Dashboard> {
                             );
                           } else if (snapshot.hasError) {
                             return Center(
-                              child:
-                                  Text('Error mengambil data: ${snapshot.error}'),
+                              child: Text(
+                                  'Error mengambil data: ${snapshot.error}'),
                             );
                           } else {
                             double totalDeposit =
@@ -302,7 +305,8 @@ class _DashboardState extends State<Dashboard> {
                           child: CircularProgressIndicator(strokeWidth: 2.0));
                     } else if (snapshot.hasError) {
                       return Center(
-                          child: Text('Error mengambil data: ${snapshot.error}'));
+                          child:
+                              Text('Error mengambil data: ${snapshot.error}'));
                     } else {
                       List<Map<String, dynamic>> history = snapshot.data ?? [];
                       return history.isEmpty
@@ -347,21 +351,24 @@ class _DashboardState extends State<Dashboard> {
                                               content: Column(
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     if (type == 'deposit')
                                                       Text(
                                                         'Deposit',
                                                         style: TextStyle(
-                                                          fontWeight: FontWeight.bold
-                                                        ),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
                                                       )
                                                     else
                                                       Text(
                                                         'Transfer',
                                                         style: TextStyle(
-                                                          fontWeight: FontWeight.bold
-                                                        ),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
                                                       ),
                                                     Text('Jumlah: $amount'),
                                                     Text(
@@ -419,8 +426,8 @@ class _DashboardState extends State<Dashboard> {
               ),
             ],
           ),
-              ),
-            ),
-        ));
+        ),
+      ),
+    ));
   }
 }
