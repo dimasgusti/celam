@@ -54,78 +54,103 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void gantiEmail() async {
-  String newEmail = _emailController.text.trim();
-  String pin = _pinController.text.trim();
+    String newEmail = _emailController.text.trim();
+    String pin = _pinController.text.trim();
 
-  if (newEmail.isEmpty || pin.isEmpty) {
-    _alertDialog('Error', 'Email atau pin kosong');
-  } else {
+    if (newEmail.isEmpty || pin.isEmpty) {
+      _alertDialog('Error', 'Email atau pin kosong');
+    } else {
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user?.email ?? '',
+          password: pin,
+        );
+
+        await user?.reauthenticateWithCredential(credential);
+
+        await user?.verifyBeforeUpdateEmail(newEmail);
+        _alertDialog(
+          'Success',
+          'Berhasil mengubah email! Silahkan cek email verifikasi dan verifikasi alamat email Anda.',
+        );
+
+        if (user != null && !user.emailVerified) {
+          await user.sendEmailVerification();
+        } else {
+          _emailController.clear();
+          _pinController.clear();
+          _alertDialog(
+            'Success',
+            'Berhasil mengubah email!\nSilahkan login kembali setelah pesan ini!',
+          );
+
+          FirebaseAuth.instance.signOut();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => IntroductionScreen()),
+          );
+        }
+      } on FirebaseAuthException catch (error) {
+        print('Firebase Auth Error: ${error.message}');
+        _alertDialog('Error',
+            'Terjadi kesalahan saat mengganti email: ${error.message}');
+      } catch (error) {
+        print('Error: $error');
+        _alertDialog('Error', 'Terjadi kesalahan saat mengganti email');
+      }
+    }
+  }
+
+  void hapusAkun() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
 
-      AuthCredential credential = EmailAuthProvider.credential(
-        email: user?.email ?? '',
-        password: pin,
-      );
-
-      await user?.reauthenticateWithCredential(credential);
-
-      await user?.verifyBeforeUpdateEmail(newEmail);
-      _alertDialog(
-        'Success',
-        'Berhasil mengubah email! Silahkan cek email verifikasi dan verifikasi alamat email Anda.',
-      );
-
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
-      } else {
-        _emailController.clear();
-        _pinController.clear();
-        _alertDialog(
-          'Success',
-          'Berhasil mengubah email!\nSilahkan login kembali setelah pesan ini!',
-        );
-
+      if (user != null) {
+        await user.delete();
+        _alertDialog('Success', 'Akun terhapus!');
         FirebaseAuth.instance.signOut();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => IntroductionScreen()),
         );
+      } else {
+        _alertDialog('Error', 'User tidak ditemukan silahkan coba lagi.');
       }
     } on FirebaseAuthException catch (error) {
       print('Firebase Auth Error: ${error.message}');
-      _alertDialog('Error', 'Terjadi kesalahan saat mengganti email: ${error.message}');
+      _alertDialog('Error', 'Failed to delete account: ${error.message}');
     } catch (error) {
       print('Error: $error');
-      _alertDialog('Error', 'Terjadi kesalahan saat mengganti email');
+      _alertDialog('Error', 'Gagal untuk menghapus akun');
     }
   }
-}
 
-void hapusAkun() async {
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
+  void ubahPIN() async {
+    String pin = _pinController.text.trim();
+    if (pin.isEmpty) {
+      _alertDialog('Error', 'Masukkan PIN dengan benar');
+    } else{
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      await user.delete();
-      _alertDialog('Success', 'Akun terhapus!');
-      FirebaseAuth.instance.signOut();
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => IntroductionScreen()),
-      );
-    } else {
-      _alertDialog('Error', 'User tidak ditemukan silahkan coba lagi.');
+        if (user != null) {
+          await user.updatePassword(pin);
+          _alertDialog('Success', 'Password diubah!');
+          FirebaseAuth.instance.signOut();
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => IntroductionScreen()));
+        } else {
+          _alertDialog('Error', 'User tidak ditemukan silahkan coba lagi.');
+        }
+      } on FirebaseAuthException catch (error) {
+        _alertDialog('Firebase Auth Error', '$error');
+      } catch (error) {
+        _alertDialog('Error', 'Gagal untuk mengubah password');
+      }
     }
-  } on FirebaseAuthException catch (error) {
-    print('Firebase Auth Error: ${error.message}');
-    _alertDialog('Error', 'Failed to delete account: ${error.message}');
-  } catch (error) {
-    print('Error: $error');
-    _alertDialog('Error', 'Failed to delete account');
   }
-}
-
 
   void _alertDialog(String title, String content) {
     showDialog(
@@ -224,7 +249,10 @@ void hapusAkun() async {
                   SizedBox(height: 10.0),
                   buildAccountOptionRow(
                       context, "Ganti Username", 'changeUsername'),
-                  buildAccountOptionRow(context, "Ganti Email & PIN", 'changeEmail'),
+                  buildAccountOptionRow(
+                      context, "Ganti Email & PIN", 'changeEmail'),
+                  buildAccountOptionRow(
+                      context, "Ganti PIN", 'changePIN'),
                   buildAccountOptionRow(context, "Hapus Akun", 'hapusAkun'),
                 ],
               ),
@@ -334,12 +362,43 @@ void hapusAkun() async {
                       )
                     else if (content == 'changeTheme')
                       Text('Ubah tema pada setting device anda!')
-                    else if(content == 'hapusAkun')
+                    else if (content == 'hapusAkun')
                       AlertDialog(
                         content: Column(
                           children: [
-                            Text(
-                              'Apakah anda yakin untuk menghapus akun?'
+                            Text('Apakah anda yakin untuk menghapus akun?')
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Batal')),
+                          TextButton(
+                              onPressed: () {
+                                hapusAkun();
+                              },
+                              child: Text('Hapus')),
+                        ],
+                      )
+                    else if(content == 'changePIN')
+                      AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: _pinController,
+                              obscureText: true,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(6)
+                              ],
+                              decoration: InputDecoration(
+                                hintText: '******',
+                                prefixIcon: Icon(Icons.password),
+                                prefixIconColor: Color(0xFF255e36),
+                              ),
                             )
                           ],
                         ),
@@ -350,10 +409,10 @@ void hapusAkun() async {
                               },
                               child: Text('Batal')),
                           TextButton(
-                            onPressed: () {
-                              hapusAkun();
-                            },
-                            child: Text('Hapus')),
+                              onPressed: () {
+                                ubahPIN();
+                              },
+                              child: Text('Ubah')),
                         ],
                       )
                     else if (content == 'changeEmail')
