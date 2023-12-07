@@ -41,12 +41,21 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
         await Auth().login(email, pin);
         FirebaseAuth.instance.authStateChanges().listen((User? user) {
           if (user != null) {
-            final snackBar = SnackBar(
-              content: Text('Selamat datang!'),
-              action: SnackBarAction(label: 'Close', textColor: Colors.grey, onPressed: () {}),
-              backgroundColor: Color(0xFF255e36),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            if(user.emailVerified){
+              final snackBar = SnackBar(
+                content: Text('Selamat datang! Akun terverifikasi!'),
+                action: SnackBarAction(label: 'Close', textColor: Colors.grey, onPressed: () {}),
+                backgroundColor: Color(0xFF255e36),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            } else{
+              final snackBar = SnackBar(
+                content: Text('Akun anda belum terverifikasi!'),
+                action: SnackBarAction(label: 'Close', textColor: Colors.grey, onPressed: () {}),
+                backgroundColor: Color(0xFF255e36),
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            }
           }
         });
         Navigator.pushReplacement(
@@ -146,7 +155,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             duration: Duration(milliseconds: 500),
                             curve: Curves.easeInOut);
                       },
-                      icon: Icon(Icons.arrow_forward_ios),
+                      icon: Icon(Icons.arrow_circle_right_rounded, size: 50,),
                       color: Colors.white,
                     )
                   ],
@@ -186,7 +195,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                             duration: Duration(milliseconds: 500),
                             curve: Curves.easeInOut);
                       },
-                      icon: Icon(Icons.arrow_forward_ios),
+                      icon: Icon(Icons.arrow_circle_right_rounded, size: 50,),
                       color: Color(0xFF255e36),
                     )
                   ],
@@ -232,7 +241,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
                                 TextFormField(
                                   controller: _emailController,
                                   inputFormatters: [
-                                    LengthLimitingTextInputFormatter(20)
+                                    LengthLimitingTextInputFormatter(30)
                                   ],
                                   decoration: InputDecoration(
                                     hintText: 'name@mail.com',

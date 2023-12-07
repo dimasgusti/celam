@@ -57,11 +57,12 @@ class _RegisState extends State<Regis> {
         setState(() => _loading = true);
         try {
           await Auth().regis(email, pin);
+          await _user?.sendEmailVerification();
           String uid = _user != null ? _user!.uid : '1';
           double initialBalance = 0.0;
           FirestoreService firestoreService = FirestoreService();
           firestoreService.registerBalance(username, uid, initialBalance);
-          _alertDialog('Success', 'Akun berhasil dibuat!');
+          _alertDialog('Success', 'Akun berhasil dibuat, cek email untuk verifikasi!');
         } on FirebaseAuthException catch (e) {
           if (e.code == 'email-already-in-use') {
             _alertDialog('Error', 'Email sudah terdaftar!');
@@ -186,7 +187,7 @@ class _RegisState extends State<Regis> {
                               TextFormField(
                                 controller: _emailController,
                                 inputFormatters: [
-                                  LengthLimitingTextInputFormatter(25)
+                                  LengthLimitingTextInputFormatter(30)
                                 ],
                                 decoration: InputDecoration(
                                   hintText: 'name@mail.com',

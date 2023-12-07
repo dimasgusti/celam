@@ -35,7 +35,7 @@ class NotLogged extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
         textTheme: ThemeData.dark().textTheme.copyWith(
           bodyText1: TextStyle(
@@ -73,13 +73,15 @@ class Logged extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.redAccent),
         useMaterial3: true,
         textTheme: ThemeData.dark().textTheme.copyWith(
           bodyText1: TextStyle(
+            color: Colors.black,
             fontFamily: 'OpenSans',
           ),
           bodyText2: TextStyle(
+            color: Colors.black,
             fontFamily: 'OpenSans',
           ),
         ),

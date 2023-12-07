@@ -76,11 +76,12 @@ class FirestoreService {
     });
   }
 
-  Future<void> addTransferHistory(String uid, double amount) async {
+  Future<void> addTransferHistory(String uid, String barang, double amount, String type) async {
     await FirebaseFirestore.instance.collection('riwayatTabungan').add({
       'uid': uid,
+      'barang': barang,
       'amount': amount,
-      'type': 'withdraw',
+      'type': type,
       'timestamp': FieldValue.serverTimestamp()
     });
   }

@@ -14,6 +14,8 @@ class _SettingsPageState extends State<SettingsPage> {
   User? _user;
 
   TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _pinController = TextEditingController();
 
   @override
   void initState() {
@@ -51,6 +53,80 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  void gantiEmail() async {
+  String newEmail = _emailController.text.trim();
+  String pin = _pinController.text.trim();
+
+  if (newEmail.isEmpty || pin.isEmpty) {
+    _alertDialog('Error', 'Email atau pin kosong');
+  } else {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: user?.email ?? '',
+        password: pin,
+      );
+
+      await user?.reauthenticateWithCredential(credential);
+
+      await user?.verifyBeforeUpdateEmail(newEmail);
+      _alertDialog(
+        'Success',
+        'Berhasil mengubah email! Silahkan cek email verifikasi dan verifikasi alamat email Anda.',
+      );
+
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+      } else {
+        _emailController.clear();
+        _pinController.clear();
+        _alertDialog(
+          'Success',
+          'Berhasil mengubah email!\nSilahkan login kembali setelah pesan ini!',
+        );
+
+        FirebaseAuth.instance.signOut();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => IntroductionScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (error) {
+      print('Firebase Auth Error: ${error.message}');
+      _alertDialog('Error', 'Terjadi kesalahan saat mengganti email: ${error.message}');
+    } catch (error) {
+      print('Error: $error');
+      _alertDialog('Error', 'Terjadi kesalahan saat mengganti email');
+    }
+  }
+}
+
+void hapusAkun() async {
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      await user.delete();
+      _alertDialog('Success', 'Akun terhapus!');
+      FirebaseAuth.instance.signOut();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => IntroductionScreen()),
+      );
+    } else {
+      _alertDialog('Error', 'User tidak ditemukan silahkan coba lagi.');
+    }
+  } on FirebaseAuthException catch (error) {
+    print('Firebase Auth Error: ${error.message}');
+    _alertDialog('Error', 'Failed to delete account: ${error.message}');
+  } catch (error) {
+    print('Error: $error');
+    _alertDialog('Error', 'Failed to delete account');
+  }
+}
+
+
   void _alertDialog(String title, String content) {
     showDialog(
         context: context,
@@ -82,11 +158,10 @@ class _SettingsPageState extends State<SettingsPage> {
         width: lebar,
         height: tinggi,
         padding: EdgeInsets.only(left: 8, right: 8),
-         decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background/bg2-icon.png'),
-            fit: BoxFit.cover)
-        ),
+        decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/background/bg2-icon.png'),
+                fit: BoxFit.cover)),
         child: ListView(
           children: [
             SizedBox(
@@ -128,7 +203,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     future: FirestoreService().getUsername(uid),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator(strokeWidth: 2.0,);
+                        return CircularProgressIndicator(
+                          strokeWidth: 2.0,
+                        );
                       } else {
                         return Text(
                           snapshot.data ?? 'No username',
@@ -147,6 +224,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: 10.0),
                   buildAccountOptionRow(
                       context, "Ganti Username", 'changeUsername'),
+                  buildAccountOptionRow(context, "Ganti Email & PIN", 'changeEmail'),
+                  buildAccountOptionRow(context, "Hapus Akun", 'hapusAkun'),
                 ],
               ),
             ),
@@ -200,8 +279,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
                 child: Text(
                   "SIGN OUT",
-                  style: TextStyle(
-                      letterSpacing: 1.5, color: Colors.black),
+                  style: TextStyle(letterSpacing: 1.5, color: Colors.black),
                 ),
               ),
             ),
@@ -255,7 +333,73 @@ class _SettingsPageState extends State<SettingsPage> {
                         ],
                       )
                     else if (content == 'changeTheme')
-                      Text('Menu ganti tema')
+                      Text('Ubah tema pada setting device anda!')
+                    else if(content == 'hapusAkun')
+                      AlertDialog(
+                        content: Column(
+                          children: [
+                            Text(
+                              'Apakah anda yakin untuk menghapus akun?'
+                            )
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Batal')),
+                          TextButton(
+                            onPressed: () {
+                              hapusAkun();
+                            },
+                            child: Text('Hapus')),
+                        ],
+                      )
+                    else if (content == 'changeEmail')
+                      AlertDialog(
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              controller: _emailController,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(25)
+                              ],
+                              decoration: InputDecoration(
+                                hintText: 'Email',
+                                prefixIcon: Icon(Icons.email),
+                                prefixIconColor: Color(0xFF255e36),
+                              ),
+                            ),
+                            TextFormField(
+                              controller: _pinController,
+                              obscureText: true,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(6)
+                              ],
+                              decoration: InputDecoration(
+                                hintText: '******',
+                                prefixIcon: Icon(Icons.password),
+                                prefixIconColor: Color(0xFF255e36),
+                              ),
+                            )
+                          ],
+                        ),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('Batal')),
+                          TextButton(
+                              onPressed: () {
+                                gantiEmail();
+                              },
+                              child: Text('Ubah')),
+                        ],
+                      )
                     else
                       Text('Belum dipasang')
                   ],

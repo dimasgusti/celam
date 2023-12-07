@@ -1,3 +1,4 @@
+import 'package:celam/screens/balance/buy.dart';
 import 'package:celam/screens/balance/transfer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
@@ -206,13 +207,15 @@ class _DashboardState extends State<Dashboard> {
                     children: [
                       TextButton(
                           onPressed: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => Buy()));
                           },
                           child: Column(
                             children: [
                               Icon(
-                                Icons.history,
+                                Icons.shopping_bag,
                               ),
-                              Text('Riwayat')
+                              Text('Pembelian')
                             ],
                           ))
                     ],
@@ -253,7 +256,9 @@ class _DashboardState extends State<Dashboard> {
                                 overallBalance(snapshot.data ?? [], 'deposit');
                             return Text(
                               '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
-                              style: TextStyle(fontWeight: FontWeight.bold,),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             );
                           }
                         },
@@ -281,8 +286,19 @@ class _DashboardState extends State<Dashboard> {
                                   'Error mengambil data: ${snapshot.error}'),
                             );
                           } else {
-                            double totalDeposit =
-                                overallBalance(snapshot.data ?? [], 'withdraw');
+                            double totalLangganan = overallBalance(
+                                snapshot.data ?? [], 'Langganan');
+
+                            double totalPembayaran = overallBalance(
+                                snapshot.data ?? [], 'Pembayaran');
+
+                            double totalTransfer =
+                                overallBalance(snapshot.data ?? [], 'Transfer');
+
+                            double totalDeposit = totalLangganan +
+                                totalPembayaran +
+                                totalTransfer;
+
                             return Text(
                               '${NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0).format(totalDeposit)}',
                               style: TextStyle(fontWeight: FontWeight.bold),
@@ -334,8 +350,10 @@ class _DashboardState extends State<Dashboard> {
                                   decimalDigits: 0,
                                 ).format(history[index]['amount'] as double);
                                 String type = history[index]['type'] as String;
-                                String uid = history[index]['uid'];
+                                // String uid = history[index]['uid'];
                                 bool isDeposit = type == 'deposit';
+                                String barang =
+                                    history[index]['barang'] ?? 'Tidak ada';
                                 DateTime timestamp =
                                     (history[index]['timestamp'] as Timestamp)
                                         .toDate();
@@ -362,9 +380,27 @@ class _DashboardState extends State<Dashboard> {
                                                                 FontWeight
                                                                     .bold),
                                                       )
-                                                    else
+                                                    else if (type == 'transfer')
                                                       Text(
                                                         'Transfer',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )
+                                                    else if (type ==
+                                                        'Pembayaran')
+                                                      Text(
+                                                        'Pembelian $barang',
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      )
+                                                    else if (type ==
+                                                        'Langganan')
+                                                      Text(
+                                                        'Langganan $barang',
                                                         style: TextStyle(
                                                             fontWeight:
                                                                 FontWeight
@@ -389,7 +425,7 @@ class _DashboardState extends State<Dashboard> {
                                       color: Colors.white70,
                                       child: ListTile(
                                           title: Text(
-                                            amount,
+                                            isDeposit ? '+$amount' : '-$amount',
                                             style: TextStyle(
                                               color: isDeposit
                                                   ? Colors.green

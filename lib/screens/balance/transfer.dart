@@ -103,7 +103,7 @@ class _TransferState extends State<Transfer> {
 
                     await FirestoreService()
                         .updateBalance(uid1, saldo1 - amount);
-                    await FirestoreService().addTransferHistory(uid1, amount);
+                    await FirestoreService().addTransferHistory(uid1, '', amount, 'transfer');
                     Navigator.pop(context);
                     _alertDialog('Success',
                         'Berhasil mengirimkan $formatRupiah kepada: $userPenerima');
